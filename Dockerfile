@@ -17,8 +17,12 @@ RUN wget -qO /tmp/dropbox.tar.gz "https://www.dropbox.com/download?plat=lnx.x86_
     rm /tmp/dropbox.tar.gz
 
 # Insync (using noble repo — update to resolute when available)
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C && \
-    echo "deb http://apt.insynchq.com/ubuntu noble non-free" \
+RUN gpg --no-default-keyring \
+        --keyring gnupg-ring:/usr/share/keyrings/insync.gpg \
+        --keyserver hkp://keyserver.ubuntu.com:80 \
+        --recv-keys ACCAF35C && \
+    chmod a+r /usr/share/keyrings/insync.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/insync.gpg] http://apt.insynchq.com/ubuntu noble non-free" \
         > /etc/apt/sources.list.d/insync.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends insync && \
