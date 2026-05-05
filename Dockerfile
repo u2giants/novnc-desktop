@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg ca-c
         > /usr/local/bin/google-chrome && \
     chmod +x /usr/local/bin/google-chrome && \
     sed -i 's|Exec=/usr/bin/google-chrome-stable|Exec=/usr/local/bin/google-chrome|g' \
-        /usr/share/applications/google-chrome.desktop
+        /usr/share/applications/google-chrome.desktop && \
+    update-desktop-database /usr/share/applications/
 
 # Dropbox daemon
 RUN wget -qO /tmp/dropbox.tar.gz "https://www.dropbox.com/download?plat=lnx.x86_64" && \
