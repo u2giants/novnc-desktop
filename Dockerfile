@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg ca-c
     apt-get install -y --no-install-recommends google-chrome-stable && \
     rm -rf /var/lib/apt/lists/* && \
     # Wrapper forces --no-sandbox (required in Docker)
-    printf '#!/bin/bash\nexec /usr/bin/google-chrome-stable --no-sandbox --disable-dev-shm-usage "$@"\n' \
+    printf '#!/bin/bash\nexec /usr/bin/google-chrome-stable --no-sandbox --disable-dev-shm-usage --no-first-run --start-maximized "$@"\n' \
         > /usr/local/bin/google-chrome && \
     chmod +x /usr/local/bin/google-chrome && \
     sed -i 's|Exec=/usr/bin/google-chrome-stable|Exec=/usr/local/bin/google-chrome|g' \
