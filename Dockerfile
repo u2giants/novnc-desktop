@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg ca-c
     apt-get install -y --no-install-recommends google-chrome-stable && \
     rm -rf /var/lib/apt/lists/* && \
     # Wrapper forces --no-sandbox (required in Docker)
-    printf '#!/bin/bash\nrm -f /config/chrome-profile/Singleton*\nexec /usr/bin/google-chrome-stable --no-sandbox --disable-dev-shm-usage --no-first-run --start-maximized --user-data-dir=/config/chrome-profile "$@"\n' \
+    printf '#!/bin/bash\nmkdir -p /config/chrome-profile\nchown -R abc:abc /config/chrome-profile 2>/dev/null\nrm -f /config/chrome-profile/Singleton*\nexec /usr/bin/google-chrome-stable --no-sandbox --disable-dev-shm-usage --no-first-run --start-maximized --user-data-dir=/config/chrome-profile --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --remote-allow-origins='"'"'*'"'"' "$@"\n' \
         > /usr/local/bin/google-chrome && \
     chmod +x /usr/local/bin/google-chrome && \
     sed -i 's|Exec=/usr/bin/google-chrome-stable|Exec=/usr/local/bin/google-chrome|g' \
