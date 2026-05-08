@@ -9,8 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget gnupg ca-c
     apt-get update && \
     apt-get install -y --no-install-recommends google-chrome-stable && \
     rm -rf /var/lib/apt/lists/* && \
-    # Wrapper forces --no-sandbox (required in Docker)
-    printf '#!/bin/bash\nmkdir -p /config/chrome-profile\nchown -R abc:abc /config/chrome-profile 2>/dev/null\nrm -f /config/chrome-profile/Singleton*\nexec /usr/bin/google-chrome-stable --no-sandbox --disable-dev-shm-usage --no-first-run --start-maximized --user-data-dir=/config/chrome-profile --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --remote-allow-origins='"'"'*'"'"' "$@"\n' \
+    # Wrapper forces --no-sandbox (required in Docker).
+    # --renderer-process-limit: cap renderer processes to prevent unbounded memory growth.
+    # --disable-background-networking: stop background fetches when no user is connected.
+    # --disable-sync: no Chrome account sync (unnecessary in this environment).
+    printf '#!/bin/bash\nmkdir -p /config/chrome-profile\nchown -R abc:abc /config/chrome-profile 2>/dev/null\nrm -f /config/chrome-profile/Singleton*\nexec /usr/bin/google-chrome-stable --no-sandbox --disable-dev-shm-usage --no-first-run --start-maximized --user-data-dir=/config/chrome-profile --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --remote-allow-origins='"'"'*'"'"' --renderer-process-limit=4 --disable-background-networking --disable-sync "$@"\n' \
         > /usr/local/bin/google-chrome && \
     chmod +x /usr/local/bin/google-chrome && \
     sed -i 's|Exec=/usr/bin/google-chrome-stable|Exec=/usr/local/bin/google-chrome|g' \
@@ -22,6 +25,11 @@ RUN wget -qO /tmp/dropbox.tar.gz "https://www.dropbox.com/download?plat=lnx.x86_
     tar xzf /tmp/dropbox.tar.gz -C /opt && \
     ln -sf /opt/.dropbox-dist/dropboxd /usr/local/bin/dropboxd && \
     rm /tmp/dropbox.tar.gz
+
+# Startup script and CDP proxy — baked in so the container works without external mounts
+COPY novnc-startup.sh /custom-cont-init.d/99-start-chromium.sh
+COPY cdp_proxy.py /custom-cont-init.d/cdp_proxy.py
+RUN chmod +x /custom-cont-init.d/99-start-chromium.sh
 
 # Insync + Caja integration for MATE file manager
 RUN wget -qO- https://apt.insync.io/insynchq.gpg | \
