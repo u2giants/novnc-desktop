@@ -72,8 +72,9 @@ PYEOF
 
   # Kill any stale Chrome processes left over from a previous crash before
   # restarting, so we don't accumulate zombie renderer trees.
-  pkill -f "google-chrome\|/opt/google/chrome/chrome" 2>/dev/null
-  sleep 1
+  # Use unescaped | for ERE alternation (pkill uses ERE; \| matches a literal pipe).
+  pkill -f "google-chrome|/opt/google/chrome/chrome" 2>/dev/null
+  sleep 2
 
   su abc -c "DISPLAY=:1 /usr/local/bin/google-chrome" 2>/dev/null
   sleep 3
